@@ -49,7 +49,7 @@ AddInstrumentDialog::AddInstrumentDialog(
 	const std::string& driver,
 	const std::string& transport,
 	const std::string& path)
-	: Dialog(title, string("AddInstrument") + to_string_hex(reinterpret_cast<uintptr_t>(this)), ImVec2(600, 150))
+	: Dialog(title, string("AddInstrument") + to_string_hex(reinterpret_cast<uintptr_t>(this)), ImVec2(600, 180))
 	, m_session(session)
 	, m_nickname(nickname)
 	, m_selectedDriver(0)
@@ -57,6 +57,11 @@ AddInstrumentDialog::AddInstrumentDialog(
 	, m_path(path)
 {
 	SCPITransport::EnumTransports(m_transports);
+	m_supportedTransports.insert(m_transports.begin(), m_transports.end());
+	m_pathEdited = false;
+	m_defaultNickname = nickname;
+	m_originalNickname = nickname;
+	m_nicknameEdited = false;
 
 	m_drivers = session.GetDriverNamesForType(driverType);
 
@@ -88,6 +93,7 @@ AddInstrumentDialog::AddInstrumentDialog(
 			i++;
 		}
 	}
+	UpdateCombos();
 }
 
 AddInstrumentDialog::~AddInstrumentDialog()
@@ -105,13 +111,20 @@ AddInstrumentDialog::~AddInstrumentDialog()
  */
 bool AddInstrumentDialog::DoRender()
 {
-	ImGui::InputText("Nickname", &m_nickname);
+	if(ImGui::InputText("Nickname", &m_nickname))
+		m_nicknameEdited = !(m_nickname.empty() || (m_nickname == m_defaultNickname));
+
 	HelpMarker(
 		"Text nickname for this instrument so you can distinguish between multiple similar devices.\n"
 		"\n"
 		"This is shown on the list of recent instruments, to disambiguate channel names in multi-instrument setups, etc.");
 
-	Combo("Driver", m_drivers, m_selectedDriver);
+	if(Combo("Driver", m_drivers, m_selectedDriver))
+	{
+		m_selectedModel = 0;
+		m_selectedTransport = 0;
+		UpdateCombos();
+	}
 	HelpMarker(
 		"Select the instrument driver to use.\n"
 		"\n"
@@ -121,7 +134,19 @@ bool AddInstrumentDialog::DoRender()
 		"\n"
 		"Check the user manual for details of what driver to use with a given instrument.");
 
-	Combo("Transport", m_transports, m_selectedTransport);
+	if(m_models.size() > 1)
+	{	// Only show model combo if there is more than one model
+		if(Combo("Model", m_models, m_selectedModel))
+			UpdateCombos();
+		HelpMarker(
+			"Select the model of your instrument.\n"
+			"\n"
+			"The selected driver supports several models from the manufacturer,"
+			"Selecting the model will adapt the instrument nickname and connection string.");
+	}
+
+	if(Combo("Transport", m_transports, m_selectedTransport))
+		UpdateCombos();
 	HelpMarker(
 		"Select the SCPI transport for the connection between your computer and the instrument.\n"
 		"\n"
@@ -137,7 +162,8 @@ bool AddInstrumentDialog::DoRender()
 			}
 		);
 
-	ImGui::InputText("Path", &m_path);
+	if(ImGui::InputText("Path", &m_path))
+		m_pathEdited = !(m_path.empty() || (m_path == m_defaultPath));
 	HelpMarker(
 		"Transport-specific description of how to connect to the instrument.\n",
 			{
@@ -204,4 +230,67 @@ SCPITransport* AddInstrumentDialog::MakeTransport()
 bool AddInstrumentDialog::DoConnect(SCPITransport* transport)
 {
 	return m_session.CreateAndAddInstrument(m_drivers[m_selectedDriver], transport, m_nickname);
+}
+
+void AddInstrumentDialog::UpdateCombos()
+{
+	// Update transoport list according to selected driver an connection string according to transport
+	string driver = m_drivers[m_selectedDriver];
+	auto supportedModels = SCPIInstrument::GetSupportedModels(driver);
+	if(!supportedModels.empty())
+	{
+		m_models.clear();
+		m_transports.clear();
+		int modelIndex = 0;
+		auto selectedModel = supportedModels[0];
+		// Model list
+		for(auto model : supportedModels)
+		{
+			m_models.push_back(model.modelName);
+			if(modelIndex == m_selectedModel)
+			{
+				selectedModel = model;
+			}
+			modelIndex++;
+		}
+		// Nick name
+		if(!m_nicknameEdited)
+		{
+			m_nickname = selectedModel.modelName;
+			m_defaultNickname = m_nickname;
+		}
+
+		// Transport list
+		int transportIndex = 0;
+		for(auto transport : selectedModel.supportedTransports)
+		{
+			string transportName = to_string(transport.transportType);
+			if(m_supportedTransports.contains(transportName))
+			{
+				m_transports.push_back(transportName);
+				if(transportIndex == m_selectedTransport && !m_pathEdited)
+				{
+					m_path = transport.connectionString;
+					m_defaultPath = m_path;
+				}
+				transportIndex++;
+			}
+		}
+		if(m_selectedTransport >= (int)m_transports.size())
+		{
+			m_selectedTransport = 0;
+			if(!m_pathEdited)
+				m_path = "";
+		}
+	}
+	else
+	{	// Supported transports not provided => add all transports
+		m_transports.clear();
+		m_models.clear();
+		if(!m_nicknameEdited)
+			m_nickname = m_originalNickname;
+		SCPITransport::EnumTransports(m_transports);
+		if(!m_pathEdited)
+			m_path = "";
+	}
 }
