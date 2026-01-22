@@ -1035,9 +1035,9 @@ void StreamBrowserDialog::renderInstrumentNode(shared_ptr<Instrument> instrument
 	auto psu = dynamic_pointer_cast<SCPIPowerSupply>(instrument);
 	if (psu)
 	{
-		if (psu->IsOffline())
+		/*if (psu->IsOffline())
 			renderBadge(ImGui::ColorConvertU32ToFloat4(prefs.GetColor("Appearance.Stream Browser.instrument_offline_badge_color")), "OFFLINE", "OFFL", NULL);
-		else
+		else*/
 		{
 			//Get the state
 			auto psustate = m_session->GetPSUState(psu);

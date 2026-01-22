@@ -47,7 +47,7 @@
 #include "../scopehal/SiglentSCPIOscilloscope.h"
 #include "../scopehal/RigolOscilloscope.h"
 #include "../scopehal/MockOscilloscope.h"
-#include "../scopehal/MockPowerSupply.h"
+//#include "../scopehal/MockPowerSupply.h"
 #include "../scopeprotocols/EyePattern.h"
 
 #include <fstream>
@@ -1799,14 +1799,14 @@ bool Session::PreLoadPowerSupply(int version, const YAML::Node& node, bool onlin
 	if(!psu)
 	{
 		//Create the mock PSU
-		psu = make_shared<MockPowerSupply>(
+		/*psu = make_shared<MockPowerSupply>(
 			node["name"].as<string>(),
 			node["vendor"].as<string>(),
 			node["serial"].as<string>(),
 			transtype,
 			driver,
 			node["args"].as<string>()
-			);
+			);*/
 	}
 
 	//Make any config settings to the instrument from our preference settings

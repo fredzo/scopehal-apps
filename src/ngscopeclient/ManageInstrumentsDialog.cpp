@@ -469,7 +469,7 @@ void ManageInstrumentsDialog::AllInstrumentsTable()
 		}
 		if(ImGui::TableSetColumnIndex(4))
 		{
-			if(inst->IsOffline())
+			/*if(inst->IsOffline())
 			{	// Only allow changing path if instrument is Offline
 				if(m_instrumentCommittedPaths[instIndex].empty()) m_instrumentCommittedPaths[instIndex]=inst->GetTransportConnectionString();
 				if(m_instrumentCurrentPaths[instIndex].empty()) m_instrumentCurrentPaths[instIndex]=inst->GetTransportConnectionString();
@@ -485,7 +485,7 @@ void ManageInstrumentsDialog::AllInstrumentsTable()
 						m_parent->RepathRecentInstrument(si,oldPath);
 				}
 			}
-			else
+			else*/
 			{
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(inst->GetTransportConnectionString().c_str());
@@ -493,10 +493,10 @@ void ManageInstrumentsDialog::AllInstrumentsTable()
 		}
 		if(ImGui::TableSetColumnIndex(5))
 		{
-			ImGui::AlignTextToFramePadding();
+			/*ImGui::AlignTextToFramePadding();
 			renderBadge(0,
 						inst->IsOffline() ? ImGui::ColorConvertU32ToFloat4(prefs.GetColor("Appearance.Stream Browser.instrument_offline_badge_color")) : ImGui::ColorConvertU32ToFloat4(prefs.GetColor("Appearance.Stream Browser.instrument_on_badge_color")),
-						inst->IsOffline() ? "Offline" : "Online");
+						inst->IsOffline() ? "Offline" : "Online");*/
 		}
 		if(ImGui::TableSetColumnIndex(6))
 		{
