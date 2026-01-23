@@ -265,7 +265,7 @@ void AddInstrumentDialog::UpdateCombos()
 		for(auto transport : selectedModel.supportedTransports)
 		{
 			string transportName = to_string(transport.transportType);
-			if(m_supportedTransports.contains(transportName))
+			if(m_supportedTransports.find(transportName) != m_supportedTransports.end())
 			{
 				m_transports.push_back(transportName);
 				if(transportIndex == m_selectedTransport && !m_pathEdited)
