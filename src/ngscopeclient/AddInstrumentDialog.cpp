@@ -170,7 +170,7 @@ bool AddInstrumentDialog::DoRender()
 				"GPIB: board index and primary address (0:7)",
 				"TCP/IP transports: IP or hostname : port (localhost:5025).\n"
 				"Note that for twinlan, two port numbers are required (localhost:5025:5026) for SCPI and data ports respectively.",
-				"UART: device path and baud rate (/dev/ttyUSB0:9600, COM1). Default id 115200 if not specified. ",
+				"UART: device path and baud rate (/dev/ttyUSB0:9600, COM1). Default is 115200 if not specified.",
 				"USBTMC: Linux device path (/dev/usbtmcX)",
 				"USB-HID: Device vendor id, product id (and optionnaly serial number): <vendorId(hex)>:<productId(hex)>:<serialNumber> (e.g.: 2e3c:af01)"
 			}
