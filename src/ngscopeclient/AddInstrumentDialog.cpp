@@ -54,6 +54,7 @@ AddInstrumentDialog::AddInstrumentDialog(
 	, m_nickname(nickname)
 	, m_selectedDriver(0)
 	, m_selectedTransport(0)
+	, m_selectedModel(0)
 	, m_path(path)
 {
 	SCPITransport::EnumTransports(m_transports);
@@ -78,7 +79,8 @@ AddInstrumentDialog::AddInstrumentDialog(
 			i++;
 		}
 	}
-
+	// Update combo now to have the right list of transports according to the selected driver
+	UpdateCombos();
 
 	if(!transport.empty())
 	{
@@ -93,6 +95,7 @@ AddInstrumentDialog::AddInstrumentDialog(
 			i++;
 		}
 	}
+	// Update again to setup path and nickenae
 	UpdateCombos();
 }
 
